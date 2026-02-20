@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DineSmart Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="dashboard-page">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>📊 {{ restaurant }} Dashboard</h1>
+        <p>AI-powered food waste analysis & demand prediction</p>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+
+        <!-- Waste Summary -->
+        <div class="card">
+            <h2>📉 Waste Summary</h2>
+            <p>Most wasted item:</p>
+            <p class="highlight">{{ worst_food }}</p>
+            <p>Total wasted units: <strong>{{ waste_qty }}</strong></p>
+        </div>
+
+        <!-- AI Recommendation -->
+        <div class="card">
+            <h2>🤖 AI Recommendation</h2>
+            <p>
+                Reduce preparation of
+                <strong>{{ worst_food }}</strong>
+                by <strong>25%</strong> to reduce food waste.
+            </p>
+        </div>
+
+        <!-- Cost Savings -->
+        <div class="card">
+            <h2>💰 Cost Impact</h2>
+            <p>Total waste cost:</p>
+            <p class="highlight">₹{{ total_cost }}</p>
+            <p>Estimated savings with AI:</p>
+            <p class="highlight">₹{{ savings }}</p>
+        </div>
+
+        <!-- Demand Prediction -->
+        <div class="card">
+            <h2>📈 Demand Prediction</h2>
+            <form method="post">
+                <input type="number" name="temperature" placeholder="Temperature (°C)" required>
+                <input type="number" name="event" placeholder="Event (1=Yes, 0=No)" required>
+                <button type="submit">Predict Demand</button>
+            </form>
+
+            {% if prediction %}
+                <p style="margin-top: 10px;">
+                    Predicted demand:
+                    <strong class="highlight">{{ prediction }}</strong>
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Waste Chart -->
+        <div class="card">
+            <h2>📊 Food Waste Chart</h2>
+            <img src="/static/graphs/waste_report.png" alt="Waste Report">
+        </div>
+
+        <!-- Weekly Forecast -->
+        <div class="card">
+            <h2>📅 Weekly Forecast</h2>
+            <img src="/static/graphs/weekly_forecast.png" alt="Weekly Forecast">
+        </div>
+
+        <!-- Restaurant Comparison -->
+        <div class="card">
+            <h2>🏪 Restaurant Comparison</h2>
+            <img src="/static/graphs/restaurant_comparison.png" alt="Comparison">
+        </div>
+
+    </div>
+
+    <!-- Logout -->
+    <div class="logout">
+        <a href="/logout">Logout</a>
+    </div>
+
+</div>
+
+</body>
+</html>

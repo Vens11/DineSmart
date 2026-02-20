@@ -1,0 +1,7 @@
+restaurant,date,menu_item,quantity_sold,temperature,event
+CampusCafeteria,2024-01-01,Rice,250,20,0
+CampusCafeteria,2024-01-02,Rice,260,22,1
+FastFoodOutlet,2024-01-01,Burger,360,28,0
+FastFoodOutlet,2024-01-02,Burger,370,30,1
+FineDineBistro,2024-01-01,Pasta,100,24,0
+FineDineBistro,2024-01-02,Pasta,105,26,1

@@ -1,0 +1,10 @@
+restaurant,date,food_item,prepared,sold,wasted
+CampusCafeteria,2024-01-01,Rice,300,250,50
+CampusCafeteria,2024-01-02,Rice,320,260,60
+CampusCafeteria,2024-01-01,Curry,200,170,30
+FastFoodOutlet,2024-01-01,Burger,400,360,40
+FastFoodOutlet,2024-01-02,Burger,420,370,50
+FastFoodOutlet,2024-01-01,Fries,350,300,50
+FineDineBistro,2024-01-01,Pasta,120,100,20
+FineDineBistro,2024-01-02,Pasta,130,105,25
+FineDineBistro,2024-01-01,Salad,90,60,30

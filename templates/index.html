@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food Waste Reduction AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>🍽️ AI Food Demand Predictor</h1>
+
+    <form action="/predict" method="post">
+        <label>Temperature (°C):</label>
+        <input type="number" name="temperature" required>
+
+        <label>Special Event? (1=Yes, 0=No)</label>
+        <input type="number" name="event" required>
+
+        <button type="submit">Predict Demand</button>
+    </form>
+</body>
+</html>

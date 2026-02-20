@@ -1,0 +1,194 @@
+/* ---------- Reset ---------- */
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+/* ---------- Page Background (Decent & Neutral) ---------- */
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------- Login Card ---------- */
+.login-container {
+    background: #ffffff;
+    width: 380px;
+    padding: 40px 35px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    text-align: center;
+}
+
+/* ---------- Title ---------- */
+.login-container h2 {
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-size: 22px;
+}
+
+/* ---------- Inputs & Select ---------- */
+.login-container select,
+.login-container input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: 6px;
+    border: 1px solid #ccd1d9;
+    font-size: 14px;
+    outline: none;
+    background: #fafafa;
+}
+
+.login-container select:focus,
+.login-container input:focus {
+    border-color: #5d6d7e;
+    background: #ffffff;
+}
+
+/* ---------- Button ---------- */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background: #34495e;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-container button:hover {
+    background: #2c3e50;
+}
+
+/* ---------- Error Message ---------- */
+.error {
+    margin-top: 15px;
+    color: #c0392b;
+    font-size: 14px;
+}
+
+/* ---------- Footer ---------- */
+.login-footer {
+    margin-top: 22px;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* ================= DASHBOARD ================= */
+
+/* Page wrapper */
+.dashboard-page {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #e4e8ec);
+    padding: 40px;
+}
+
+/* Header */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 26px;
+}
+
+.dashboard-header p {
+    margin-top: 6px;
+    color: #7f8c8d;
+}
+
+/* Grid layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* Cards */
+.card {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Card titles */
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: #34495e;
+}
+
+/* Card text */
+.card p {
+    margin: 6px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Highlight numbers */
+.highlight {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Forms inside cards */
+.card input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccd1d9;
+}
+
+.card button {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+    background: #34495e;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.card button:hover {
+    background: #2c3e50;
+}
+
+/* Images */
+.card img {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+/* Logout */
+.logout {
+    text-align: center;
+    margin-top: 35px;
+}
+
+.logout a {
+    color: #34495e;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.logout a:hover {
+    text-decoration: underline;
+}

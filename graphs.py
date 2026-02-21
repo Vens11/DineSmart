@@ -134,11 +134,12 @@ def generate_restaurant_comparison():
     names = [r[0] for r in rows]
     wasted = [r[1] for r in rows]
 
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(5, 3))
     plt.bar(names, wasted)
-    plt.title("Food Waste Comparison Across Restaurants")
-    plt.ylabel("Total Wasted Units")
-    plt.xticks(rotation=25)
+    plt.title("Food Waste Comparison", fontsize=11)
+    plt.ylabel("Wasted Units", fontsize=9)
+    plt.xticks(rotation=20, fontsize=8)
+    plt.yticks(fontsize=8)
     plt.tight_layout()
     plt.savefig("static/graphs/restaurant_comparison.png")
     plt.close()

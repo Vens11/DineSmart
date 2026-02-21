@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DineSmart – Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <h1>🛠 Admin Dashboard</h1>
+        <p>System-wide food waste monitoring</p>
+
+        <div style="margin-top:15px;">
+            <a href="/logout" class="add-btn">Logout</a>
+        </div>
+    </div>
+
+    <!-- SELECT RESTAURANT -->
+    <div class="card admin-card">
+        <h3>Select Restaurant</h3>
+        <p class="muted">View restaurant-wise waste insights</p>
+
+        <form method="get" action="/admin">
+            <select name="restaurant_id" class="admin-select" required>
+                <option value="">Choose restaurant</option>
+                {% for r in restaurants %}
+                    <option value="{{ r.id }}"
+                        {% if selected_restaurant == r.id %}selected{% endif %}>
+                        {{ r.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button class="add-btn" style="margin-top:12px;">
+                View Insights
+            </button>
+        </form>
+    </div>
+
+    <!-- RESTAURANT ANALYTICS -->
+    {% if analytics %}
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <h3>📉 Waste Summary</h3>
+            <p>Most Wasted Item</p>
+            <p class="highlight">{{ analytics.worst_food }}</p>
+            <p>Total Wasted Units: <strong>{{ analytics.waste_qty }}</strong></p>
+        </div>
+
+        <div class="card">
+            <h3>🔥 Top 3 Wasted Foods</h3>
+            <ul>
+                {% for item in analytics.top_3 %}
+                    <li>{{ item.food_item }} – <strong>{{ item.wasted }}</strong></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>💰 Cost Impact</h3>
+            <p class="highlight">₹{{ analytics.total_cost }}</p>
+        </div>
+
+        <div class="card">
+            <h3>🤖 AI Recommendation</h3>
+            <p>{{ analytics.ai_message }}</p>
+        </div>
+
+    </div>
+    {% endif %}
+
+    <!-- COMPARISON -->
+    <div class="card" style="max-width:900px; margin:30px auto;">
+        <h3>🏪 Restaurant Waste Comparison</h3>
+        <img src="/static/graphs/restaurant_comparison.png" class="admin-graph">
+    </div>
+
+</div>
+
+</body>
+</html>

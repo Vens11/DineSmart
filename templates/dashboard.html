@@ -4,22 +4,29 @@
     <title>DineSmart Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body class="dashboard-page">
 
 <div class="dashboard-page">
 
-    <!-- Header -->
+    <!-- ================= HEADER ================= -->
     <div class="dashboard-header">
         <h1>📊 {{ restaurant }} Dashboard</h1>
         <p>AI-powered food waste analysis & demand prediction</p>
 
-        <!-- ✅ Add Food Button -->
+        <!-- Action Buttons -->
         <div style="margin-top:15px;">
             <a href="/add-food" class="add-btn">➕ Add Food Data</a>
+
+            {% if session.role == "admin" %}
+                <a href="/admin" class="add-btn" style="margin-left:10px;">
+                    🛠 Admin Panel
+                </a>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Dashboard Grid -->
+    <!-- ================= DASHBOARD GRID ================= -->
     <div class="dashboard-grid">
 
         <!-- Waste Summary -->
@@ -33,17 +40,22 @@
         <!-- Top 3 Wasted Foods -->
         <div class="card">
             <h2>🔥 Top 3 Wasted Foods</h2>
-            <ul>
-                {% for item in top_3_waste %}
-                    <li>
-                        {{ item.food_item }} –
-                        <strong>{{ item.wasted }}</strong> units
-                    </li>
-                {% endfor %}
-            </ul>
+
+            {% if top_3_waste %}
+                <ul>
+                    {% for item in top_3_waste %}
+                        <li>
+                            {{ item.food_item }} –
+                            <strong>{{ item.wasted }}</strong> units
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No waste data available yet.</p>
+            {% endif %}
         </div>
 
-        <!-- 🤖 AI Recommendation -->
+        <!-- AI Recommendation -->
         <div class="card">
             <h2>🤖 AI Recommendation</h2>
             <p>{{ ai_message }}</p>
@@ -55,6 +67,7 @@
             <p>Total waste cost:</p>
             <p class="highlight">₹{{ total_cost }}</p>
 
+            {% if food_costs %}
             <table class="cost-table">
                 <tr>
                     <th>Food</th>
@@ -67,28 +80,35 @@
                 </tr>
                 {% endfor %}
             </table>
+            {% else %}
+                <p>No cost data available.</p>
+            {% endif %}
         </div>
 
-        <!-- Food Demand Prediction -->
+        <!-- Demand Prediction -->
         <div class="card">
             <h2>📈 Food Demand Prediction</h2>
 
-            <form method="post">
-                <input
-                    type="number"
-                    name="temperature"
-                    placeholder="Temperature (°C)"
-                    required
-                >
+            {% if foods %}
+                <form method="post">
+                    <input
+                        type="number"
+                        name="temperature"
+                        placeholder="Temperature (°C)"
+                        required
+                    >
 
-                <select name="food" required>
-                    {% for food in foods %}
-                        <option value="{{ food }}">{{ food }}</option>
-                    {% endfor %}
-                </select>
+                    <select name="food" required>
+                        {% for food in foods %}
+                            <option value="{{ food }}">{{ food }}</option>
+                        {% endfor %}
+                    </select>
 
-                <button type="submit">Predict</button>
-            </form>
+                    <button type="submit">Predict</button>
+                </form>
+            {% else %}
+                <p>Add food data to enable demand prediction.</p>
+            {% endif %}
 
             {% if food_prediction is not none %}
                 <p style="margin-top:10px;">
@@ -120,7 +140,7 @@
 
     </div>
 
-    <!-- Logout -->
+    <!-- ================= LOGOUT ================= -->
     <div class="logout">
         <a href="/logout">Logout</a>
     </div>

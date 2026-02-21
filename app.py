@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import pandas as pd
-import sqlite3
+import mysql.connector
 
 from model import predict_food_demand
 from graphs import (
@@ -9,7 +8,7 @@ from graphs import (
     get_top_3_wasted_foods,
     calculate_food_wise_cost,
     generate_weekly_food_trend,
-    generate_ai_recommendation   # ✅ IMPORTANT
+    generate_ai_recommendation
 )
 
 app = Flask(__name__)
@@ -17,10 +16,15 @@ app.secret_key = "dinesmart_secret_key"
 
 
 # =====================================================
-# DATABASE HELPER
+# DATABASE HELPER (MySQL)
 # =====================================================
 def get_db():
-    return sqlite3.connect("database.db")
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="vennela",   # change if needed
+        database="dinesmart_db"
+    )
 
 
 # =====================================================
@@ -38,16 +42,17 @@ def signup():
             cursor = conn.cursor()
 
             cursor.execute(
-                "INSERT INTO restaurants (name, email, password) VALUES (?, ?, ?)",
+                "INSERT INTO restaurants (name, email, password) VALUES (%s, %s, %s)",
                 (name, email, password)
             )
 
             conn.commit()
+            cursor.close()
             conn.close()
 
             return redirect(url_for("login"))
 
-        except sqlite3.IntegrityError:
+        except mysql.connector.IntegrityError:
             return render_template(
                 "signup.html",
                 error="Restaurant or email already exists"
@@ -69,11 +74,12 @@ def login():
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT id, name FROM restaurants WHERE email=? AND password=?",
+            "SELECT id, name FROM restaurants WHERE email=%s AND password=%s",
             (email, password)
         )
 
         user = cursor.fetchone()
+        cursor.close()
         conn.close()
 
         if user:
@@ -87,34 +93,82 @@ def login():
 
 
 # =====================================================
+# ADD FOOD DATA
+# =====================================================
+@app.route("/add-food", methods=["GET", "POST"])
+def add_food():
+    if "restaurant_id" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        food_item = request.form.get("food_item")
+        prepared = int(request.form.get("prepared"))
+        sold = int(request.form.get("sold"))
+        cost_per_unit = int(request.form.get("cost_per_unit"))
+
+        wasted = max(prepared - sold, 0)
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO food_history
+            (restaurant_id, food_item, prepared, sold, wasted, cost_per_unit)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            session["restaurant_id"],
+            food_item,
+            prepared,
+            sold,
+            wasted,
+            cost_per_unit
+        ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for("dashboard"))
+
+    return render_template("add_food.html")
+
+
+# =====================================================
 # DASHBOARD
 # =====================================================
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    if "restaurant" not in session:
+    if "restaurant_id" not in session:
         return redirect(url_for("login"))
 
+    restaurant_id = session["restaurant_id"]
     restaurant = session["restaurant"]
 
-    # Load history
-    history = pd.read_csv("data/history.csv")
-    history = history[history["restaurant"] == restaurant]
+    # ---------------- FOOD LIST ----------------
+    conn = get_db()
+    cursor = conn.cursor()
 
-    foods = history["food_item"].unique().tolist()
+    cursor.execute("""
+        SELECT DISTINCT food_item
+        FROM food_history
+        WHERE restaurant_id = %s
+    """, (restaurant_id,))
+
+    foods = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
 
     # ---------------- ANALYTICS ----------------
-    worst_food, waste_qty = generate_waste_report(restaurant)
-
+    worst_food, waste_qty = generate_waste_report(restaurant_id)
     if waste_qty == 0:
         worst_food = "No data yet"
 
-    top_3_waste = get_top_3_wasted_foods(restaurant).to_dict("records")
-    food_costs, total_cost = calculate_food_wise_cost(restaurant)
+    top_3_waste = get_top_3_wasted_foods(restaurant_id)
+    food_costs, total_cost = calculate_food_wise_cost(restaurant_id)
 
     generate_restaurant_comparison()
 
-    # ✅ AI RECOMMENDATION (THIS WAS MISSING)
-    ai_message = generate_ai_recommendation(restaurant)
+    ai_message = generate_ai_recommendation(restaurant_id)
 
     # ---------------- PREDICTION ----------------
     food_prediction = None
@@ -126,9 +180,9 @@ def dashboard():
 
             if food:
                 food_prediction = predict_food_demand(
-                    restaurant, food, temperature
+                    restaurant_id, food, temperature   # ✅ FIXED
                 )
-                generate_weekly_food_trend(restaurant, food)
+                generate_weekly_food_trend(restaurant_id, food)
 
         except Exception as e:
             print("Prediction error:", e)
@@ -140,10 +194,10 @@ def dashboard():
         worst_food=worst_food,
         waste_qty=waste_qty,
         top_3_waste=top_3_waste,
-        food_costs=food_costs.to_dict("records"),
+        food_costs=food_costs,
         total_cost=total_cost,
         food_prediction=food_prediction,
-        ai_message=ai_message   # ✅ PASSED TO TEMPLATE
+        ai_message=ai_message
     )
 
 

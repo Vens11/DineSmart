@@ -12,6 +12,11 @@
     <div class="dashboard-header">
         <h1>📊 {{ restaurant }} Dashboard</h1>
         <p>AI-powered food waste analysis & demand prediction</p>
+
+        <!-- ✅ Add Food Button -->
+        <div style="margin-top:15px;">
+            <a href="/add-food" class="add-btn">➕ Add Food Data</a>
+        </div>
     </div>
 
     <!-- Dashboard Grid -->
@@ -38,7 +43,7 @@
             </ul>
         </div>
 
-        <!-- ✅ AI Recommendation (FIXED) -->
+        <!-- 🤖 AI Recommendation -->
         <div class="card">
             <h2>🤖 AI Recommendation</h2>
             <p>{{ ai_message }}</p>

@@ -1,72 +1,77 @@
-import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
+import mysql.connector
 
-# ---------------- CONFIG ----------------
-MODEL_TYPE = "random_forest"
-# Options: "linear", "random_forest"
-
-
-# ---------------- FOOD-WISE DEMAND PREDICTION ----------------
-
-
-def predict_food_demand(restaurant, food, temperature):
-    data = pd.read_csv("data/food_sales.csv")
-
-    # Try food-specific data
-    food_data = data[
-        (data['restaurant'] == restaurant) &
-        (data['menu_item'] == food)
-    ]
-
-    # ❗ If food not found in Kaggle data → fallback
-    if food_data.empty:
-        restaurant_data = data[data['restaurant'] == restaurant]
-
-        if restaurant_data.empty:
-            return 0
-
-        X = restaurant_data[['temperature']]
-        y = restaurant_data['quantity_sold']
-
-    else:
-        X = food_data[['temperature']]
-        y = food_data['quantity_sold']
-
-    model = RandomForestRegressor(
-        n_estimators=100,
-        random_state=42
+# =====================================================
+# DATABASE CONNECTION (same as app.py)
+# =====================================================
+def get_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="vennela",      # change if needed
+        database="dinesmart_db"
     )
-    model.fit(X, y)
-
-    input_df = pd.DataFrame([[temperature]], columns=['temperature'])
-    prediction = model.predict(input_df)
-
-    return int(prediction[0])
-
-# ---------------- WEEKLY FORECAST (FOOD-WISE) ----------------
-def weekly_forecast_food(restaurant, food):
-    data = pd.read_csv("data/food_sales.csv")
-
-    data = data[
-        (data['restaurant'] == restaurant) &
-        (data['menu_item'] == food)
-    ]
-
-    avg = int(data['quantity_sold'].mean())
-    return [avg + i * 5 for i in range(7)]
 
 
-# ---------------- INTERNAL MODEL SELECTOR ----------------
-def _get_model():
-    if MODEL_TYPE == "linear":
-        return LinearRegression()
+# =====================================================
+# FOOD-WISE DEMAND PREDICTION (NO KAGGLE, NO CSV)
+# =====================================================
+def predict_food_demand(restaurant_id, food, temperature):
+    conn = get_db()
+    cursor = conn.cursor()
 
-    elif MODEL_TYPE == "random_forest":
-        return RandomForestRegressor(
-            n_estimators=100,
-            random_state=42
-        )
+    # 1️⃣ Base demand = average sold quantity
+    cursor.execute("""
+        SELECT AVG(sold)
+        FROM food_history
+        WHERE restaurant_id = %s AND food_item = %s
+    """, (restaurant_id, food))
 
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # ❌ No data yet → sensible default
+    if result[0] is None:
+        base = 5
     else:
-        raise ValueError("Invalid MODEL_TYPE")
+        base = float(result[0])
+
+    # 2️⃣ Temperature scaling (realistic logic)
+    if temperature >= 35:
+        base *= 1.3
+    elif temperature >= 30:
+        base *= 1.2
+    elif temperature <= 20:
+        base *= 0.85
+
+    # 3️⃣ Safety → never 0
+    return max(1, int(round(base)))
+
+
+# =====================================================
+# WEEKLY FORECAST (FOOD-WISE)
+# =====================================================
+def weekly_forecast_food(restaurant_id, food):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT sold
+        FROM food_history
+        WHERE restaurant_id = %s AND food_item = %s
+    """, (restaurant_id, food))
+
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not rows:
+        return [5, 5, 5, 5, 5, 5, 5]
+
+    avg = int(sum(r[0] for r in rows) / len(rows))
+    avg = max(1, avg)
+
+    return [
+        int(avg * f)
+        for f in [0.9, 0.95, 1.0, 1.1, 1.15, 1.05, 0.95]
+    ]

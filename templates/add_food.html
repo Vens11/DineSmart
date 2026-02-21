@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Food Data – DineSmart</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dashboard-page">
+
+<div class="dashboard-page">
+
+    <div class="dashboard-header">
+        <h1>➕ Add Daily Food Data</h1>
+        <p>Enter food preparation and sales details</p>
+    </div>
+
+    <div class="dashboard-grid grid-2">
+
+        <div class="card">
+            <form method="post">
+
+                <label>Food Item</label>
+                <input type="text" name="food_item" required>
+
+                <label>Prepared Units</label>
+                <input type="number" name="prepared" min="0" required>
+
+                <label>Sold Units</label>
+                <input type="number" name="sold" min="0" required>
+
+                <label>Cost per Unit (₹)</label>
+                <input type="number" name="cost_per_unit" min="0" required>
+
+                <button type="submit">Add Food Entry</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="logout">
+        <a href="/dashboard">⬅ Back to Dashboard</a>
+    </div>
+
+</div>
+
+</body>
+</html>

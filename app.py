@@ -1,90 +1,136 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import pandas as pd
+import sqlite3
 
 from model import predict_food_demand
-
 from graphs import (
     generate_waste_report,
     generate_restaurant_comparison,
     get_top_3_wasted_foods,
     calculate_food_wise_cost,
-    generate_weekly_food_trend
+    generate_weekly_food_trend,
+    generate_ai_recommendation   # ✅ IMPORTANT
 )
 
 app = Flask(__name__)
 app.secret_key = "dinesmart_secret_key"
 
 
-# ---------------- DEMO RESTAURANT LOGINS ----------------
-USERS = {
-    "campus": {
-        "password": "campus123",
-        "restaurant": "CampusCafeteria"
-    },
-    "fastfood": {
-        "password": "fast123",
-        "restaurant": "FastFoodOutlet"
-    },
-    "finedine": {
-        "password": "dine123",
-        "restaurant": "FineDineBistro"
-    }
-}
+# =====================================================
+# DATABASE HELPER
+# =====================================================
+def get_db():
+    return sqlite3.connect("database.db")
 
 
-# ---------------- LOGIN ----------------
-@app.route('/', methods=['GET', 'POST'])
+# =====================================================
+# SIGN UP
+# =====================================================
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "INSERT INTO restaurants (name, email, password) VALUES (?, ?, ?)",
+                (name, email, password)
+            )
+
+            conn.commit()
+            conn.close()
+
+            return redirect(url_for("login"))
+
+        except sqlite3.IntegrityError:
+            return render_template(
+                "signup.html",
+                error="Restaurant or email already exists"
+            )
+
+    return render_template("signup.html")
+
+
+# =====================================================
+# LOGIN
+# =====================================================
+@app.route("/", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
 
-        if username in USERS and USERS[username]['password'] == password:
-            session['restaurant'] = USERS[username]['restaurant']
-            return redirect(url_for('dashboard'))
+        conn = get_db()
+        cursor = conn.cursor()
 
-        return render_template("login.html", error="Invalid credentials")
+        cursor.execute(
+            "SELECT id, name FROM restaurants WHERE email=? AND password=?",
+            (email, password)
+        )
+
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            session["restaurant_id"] = user[0]
+            session["restaurant"] = user[1]
+            return redirect(url_for("dashboard"))
+
+        return render_template("login.html", error="Invalid login credentials")
 
     return render_template("login.html")
 
 
-# ---------------- DASHBOARD ----------------
-@app.route('/dashboard', methods=['GET', 'POST'])
+# =====================================================
+# DASHBOARD
+# =====================================================
+@app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    if 'restaurant' not in session:
-        return redirect(url_for('login'))
+    if "restaurant" not in session:
+        return redirect(url_for("login"))
 
-    restaurant = session['restaurant']
+    restaurant = session["restaurant"]
 
-    # Load history data
+    # Load history
     history = pd.read_csv("data/history.csv")
-    history = history[history['restaurant'] == restaurant]
+    history = history[history["restaurant"] == restaurant]
 
-    foods = history['food_item'].unique().tolist()
+    foods = history["food_item"].unique().tolist()
 
-    # Analytics
+    # ---------------- ANALYTICS ----------------
     worst_food, waste_qty = generate_waste_report(restaurant)
-    top_3_waste = get_top_3_wasted_foods(restaurant).to_dict(orient="records")
+
+    if waste_qty == 0:
+        worst_food = "No data yet"
+
+    top_3_waste = get_top_3_wasted_foods(restaurant).to_dict("records")
     food_costs, total_cost = calculate_food_wise_cost(restaurant)
+
     generate_restaurant_comparison()
 
-    # Prediction result
+    # ✅ AI RECOMMENDATION (THIS WAS MISSING)
+    ai_message = generate_ai_recommendation(restaurant)
+
+    # ---------------- PREDICTION ----------------
     food_prediction = None
 
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            temperature = int(request.form.get('temperature'))
-            food = request.form.get('food')
+            temperature = int(request.form.get("temperature"))
+            food = request.form.get("food")
 
-            if food and temperature:
+            if food:
                 food_prediction = predict_food_demand(
                     restaurant, food, temperature
                 )
                 generate_weekly_food_trend(restaurant, food)
 
         except Exception as e:
-            # Safe fallback (no crash)
-            food_prediction = None
             print("Prediction error:", e)
 
     return render_template(
@@ -94,19 +140,24 @@ def dashboard():
         worst_food=worst_food,
         waste_qty=waste_qty,
         top_3_waste=top_3_waste,
-        food_costs=food_costs.to_dict(orient="records"),
+        food_costs=food_costs.to_dict("records"),
         total_cost=total_cost,
-        food_prediction=food_prediction
+        food_prediction=food_prediction,
+        ai_message=ai_message   # ✅ PASSED TO TEMPLATE
     )
 
 
-# ---------------- LOGOUT ----------------
-@app.route('/logout')
+# =====================================================
+# LOGOUT
+# =====================================================
+@app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for("login"))
 
 
-# ---------------- RUN APP ----------------
+# =====================================================
+# RUN APP
+# =====================================================
 if __name__ == "__main__":
     app.run(debug=True)

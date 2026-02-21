@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>DineSmart – Restaurant Login</title>
+    <title>DineSmart – Restaurant Sign Up</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
-<!-- IMPORTANT: body class -->
+<!-- IMPORTANT: body class for centering -->
 <body class="login-page">
 
 <div class="login-container">
-    <h2>🔐 DineSmart – Restaurant Login</h2>
+    <h2>🏪 DineSmart – Restaurant Sign Up</h2>
 
     <form method="post">
+        <input
+            type="text"
+            name="name"
+            placeholder="Restaurant Name"
+            required
+        >
+
         <input
             type="email"
             name="email"
@@ -27,7 +34,7 @@
             required
         >
 
-        <button type="submit">Login</button>
+        <button type="submit">Create Account</button>
     </form>
 
     {% if error %}
@@ -35,8 +42,8 @@
     {% endif %}
 
     <div class="login-footer">
-        New restaurant?
-        <a href="/signup">Create an account</a>
+        Already have an account?
+        <a href="/">Login</a>
     </div>
 </div>
 

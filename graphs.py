@@ -6,20 +6,30 @@ import matplotlib.pyplot as plt
 import os
 
 
-# ---------------- Waste Report ----------------
+# =====================================================
+# Waste Report
+# =====================================================
 def generate_waste_report(restaurant):
     os.makedirs("static/graphs", exist_ok=True)
 
     data = pd.read_csv("data/history.csv")
     data = data[data['restaurant'] == restaurant]
 
+    if data.empty:
+        plt.figure()
+        plt.text(0.5, 0.5, "No data available",
+                 ha='center', va='center', fontsize=12)
+        plt.axis("off")
+        plt.savefig("static/graphs/waste_report.png")
+        plt.close()
+        return "No Data", 0
+
     waste_summary = data.groupby("food_item")["wasted"].sum()
 
-    plt.figure(figsize=(7, 4))
+    plt.figure(figsize=(6, 4))
     waste_summary.plot(kind="bar")
     plt.title(f"Food Waste Report – {restaurant}")
     plt.ylabel("Units Wasted")
-    plt.xlabel("Food Item")
     plt.tight_layout()
 
     plt.savefig("static/graphs/waste_report.png")
@@ -28,12 +38,14 @@ def generate_waste_report(restaurant):
     return waste_summary.idxmax(), int(waste_summary.max())
 
 
-# ---------------- Top 3 Wasted Foods ----------------
+# =====================================================
+# Top 3 Wasted Foods
+# =====================================================
 def get_top_3_wasted_foods(restaurant):
     data = pd.read_csv("data/history.csv")
     data = data[data['restaurant'] == restaurant]
 
-    top_3 = (
+    return (
         data.groupby("food_item")["wasted"]
         .sum()
         .sort_values(ascending=False)
@@ -41,10 +53,10 @@ def get_top_3_wasted_foods(restaurant):
         .reset_index()
     )
 
-    return top_3
 
-
-# ---------------- Food-wise Cost (₹) ----------------
+# =====================================================
+# Food-wise Cost (₹)
+# =====================================================
 def calculate_food_wise_cost(restaurant):
     data = pd.read_csv("data/history.csv")
     data = data[data['restaurant'] == restaurant]
@@ -58,11 +70,12 @@ def calculate_food_wise_cost(restaurant):
     )
 
     total_cost = int(food_cost["waste_cost"].sum())
-
     return food_cost, total_cost
 
 
-# ---------------- Restaurant Comparison ----------------
+# =====================================================
+# Restaurant Comparison
+# =====================================================
 def generate_restaurant_comparison():
     os.makedirs("static/graphs", exist_ok=True)
 
@@ -79,37 +92,25 @@ def generate_restaurant_comparison():
     plt.close()
 
 
-# ---------------- Weekly Forecast Chart (Overall) ----------------
-def generate_weekly_forecast_chart(restaurant, forecast):
-    os.makedirs("static/graphs", exist_ok=True)
-
-    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-    plt.figure(figsize=(6, 4))
-    plt.plot(days, forecast, marker='o')
-    plt.title(f"Weekly Demand Forecast – {restaurant}")
-    plt.ylabel("Predicted Demand")
-    plt.xlabel("Day")
-    plt.tight_layout()
-
-    plt.savefig("static/graphs/weekly_forecast.png")
-    plt.close()
-
-
-# ---------------- Weekly Trend Per Food ----------------
+# =====================================================
+# Weekly Trend Per Food
+# =====================================================
 def generate_weekly_food_trend(restaurant, food):
     os.makedirs("static/graphs", exist_ok=True)
 
-    # Create dummy weekly trend from waste data (demo purpose)
     data = pd.read_csv("data/history.csv")
     data = data[
         (data["restaurant"] == restaurant) &
         (data["food_item"] == food)
     ]
 
-    # Simulated weekly trend
+    if data.empty:
+        return
+
+    base = int(data["sold"].mean())
+
     weekly_values = [
-        int(data["sold"].values[0] * factor)
+        int(base * factor)
         for factor in [0.8, 0.9, 1.0, 1.1, 1.0, 0.95, 0.9]
     ]
 
@@ -124,3 +125,34 @@ def generate_weekly_food_trend(restaurant, food):
 
     plt.savefig("static/graphs/weekly_food_trend.png")
     plt.close()
+
+
+# =====================================================
+# 🤖 AI Recommendation (NEW & IMPORTANT)
+# =====================================================
+def generate_ai_recommendation(restaurant):
+    data = pd.read_csv("data/history.csv")
+    data = data[data['restaurant'] == restaurant]
+
+    if data.empty:
+        return "Not enough data to generate AI recommendation."
+
+    waste_summary = data.groupby("food_item")["wasted"].sum()
+    worst_food = waste_summary.idxmax()
+    waste_amount = waste_summary.max()
+
+    if waste_amount > 80:
+        return (
+            f"High waste detected for {worst_food}. "
+            f"Reduce preparation by 30% and monitor demand closely."
+        )
+    elif waste_amount > 40:
+        return (
+            f"Moderate waste detected for {worst_food}. "
+            f"Reduce preparation by 20% to optimize cost."
+        )
+    else:
+        return (
+            "Waste levels are under control. "
+            "Maintain current preparation strategy."
+        )

@@ -4,7 +4,7 @@
     <title>DineSmart Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="dashboard-page">
 
 <div class="dashboard-page">
 
@@ -38,15 +38,10 @@
             </ul>
         </div>
 
-        <!-- AI Recommendation -->
+        <!-- ✅ AI Recommendation (FIXED) -->
         <div class="card">
             <h2>🤖 AI Recommendation</h2>
-            <p>
-                Reduce preparation of
-                <strong>{{ worst_food }}</strong>
-                by <strong>25%</strong>
-                to reduce food waste and cost.
-            </p>
+            <p>{{ ai_message }}</p>
         </div>
 
         <!-- Cost Impact -->

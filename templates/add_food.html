@@ -1,43 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Food Data – DineSmart</title>
+    <meta charset="UTF-8">
+    <title>Add Daily Food Data</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="dashboard-page">
 
-<div class="dashboard-page">
+<body>
 
-    <div class="dashboard-header">
-        <h1>➕ Add Daily Food Data</h1>
-        <p>Enter food preparation and sales details</p>
-    </div>
+<div class="form-page">
 
-    <div class="dashboard-grid grid-2">
+    <div class="form-card">
 
-        <div class="card">
-            <form method="post">
+        <h1 class="form-title">➕ Add Daily Food Data</h1>
+        <p class="form-subtitle">Enter food preparation and sales details</p>
 
+        <form method="post" class="food-form">
+
+            <div class="form-group">
                 <label>Food Item</label>
                 <input type="text" name="food_item" required>
+            </div>
 
-                <label>Prepared Units</label>
-                <input type="number" name="prepared" min="0" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Prepared Units</label>
+                    <input type="number" name="prepared_units" required>
+                </div>
 
-                <label>Sold Units</label>
-                <input type="number" name="sold" min="0" required>
+                <div class="form-group">
+                    <label>Sold Units</label>
+                    <input type="number" name="sold_units" required>
+                </div>
 
-                <label>Cost per Unit (₹)</label>
-                <input type="number" name="cost_per_unit" min="0" required>
+                <div class="form-group">
+                    <label>Cost per Unit (₹)</label>
+                    <input type="number" name="cost_per_unit" step="0.01" required>
+                </div>
+            </div>
 
-                <button type="submit">Add Food Entry</button>
-            </form>
-        </div>
+            <button type="submit" class="primary-btn">
+                Add Food Entry
+            </button>
 
-    </div>
+        </form>
 
-    <div class="logout">
-        <a href="/dashboard">⬅ Back to Dashboard</a>
+        <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
     </div>
 
 </div>

@@ -16,19 +16,19 @@ app.secret_key = "dinesmart_secret_key"
 
 
 # =====================================================
-# DATABASE HELPER (MySQL)
+# DATABASE HELPER
 # =====================================================
 def get_db():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="vennela",        # change if needed
+        password="vennela",
         database="dinesmart_db"
     )
 
 
 # =====================================================
-# SIGN UP (Restaurant only)
+# SIGNUP
 # =====================================================
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -40,18 +40,14 @@ def signup():
         try:
             conn = get_db()
             cursor = conn.cursor()
-
             cursor.execute("""
                 INSERT INTO restaurants (name, email, password, role)
                 VALUES (%s, %s, %s, 'restaurant')
             """, (name, email, password))
-
             conn.commit()
             cursor.close()
             conn.close()
-
             return redirect(url_for("login"))
-
         except mysql.connector.IntegrityError:
             return render_template("signup.html", error="Email already exists")
 
@@ -59,7 +55,7 @@ def signup():
 
 
 # =====================================================
-# LOGIN (ADMIN + RESTAURANT)
+# LOGIN
 # =====================================================
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -69,13 +65,11 @@ def login():
 
         conn = get_db()
         cursor = conn.cursor()
-
         cursor.execute("""
             SELECT id, name, role
             FROM restaurants
             WHERE email=%s AND password=%s
         """, (email, password))
-
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -87,8 +81,7 @@ def login():
 
             if user[2] == "admin":
                 return redirect(url_for("admin_dashboard"))
-            else:
-                return redirect(url_for("dashboard"))
+            return redirect(url_for("dashboard"))
 
         return render_template("login.html", error="Invalid login credentials")
 
@@ -96,11 +89,11 @@ def login():
 
 
 # =====================================================
-# ADD FOOD DATA (Restaurant)
+# ADD FOOD
 # =====================================================
 @app.route("/add-food", methods=["GET", "POST"])
 def add_food():
-    if "restaurant_id" not in session or session["role"] != "restaurant":
+    if session.get("role") != "restaurant":
         return redirect(url_for("login"))
 
     if request.method == "POST":
@@ -113,7 +106,6 @@ def add_food():
 
         conn = get_db()
         cursor = conn.cursor()
-
         cursor.execute("""
             INSERT INTO food_history
             (restaurant_id, food_item, prepared, sold, wasted, cost_per_unit)
@@ -126,7 +118,6 @@ def add_food():
             wasted,
             cost_per_unit
         ))
-
         conn.commit()
         cursor.close()
         conn.close()
@@ -141,40 +132,36 @@ def add_food():
 # =====================================================
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    if "restaurant_id" not in session or session["role"] != "restaurant":
+    if session.get("role") != "restaurant":
         return redirect(url_for("login"))
 
     restaurant_id = session["restaurant_id"]
     restaurant = session["restaurant"]
 
-    # FOOD LIST
     conn = get_db()
     cursor = conn.cursor()
+
     cursor.execute("""
         SELECT DISTINCT food_item
         FROM food_history
         WHERE restaurant_id=%s
     """, (restaurant_id,))
     foods = [row[0] for row in cursor.fetchall()]
+
     cursor.close()
     conn.close()
 
-    # ANALYTICS
     worst_food, waste_qty = generate_waste_report(restaurant_id)
     top_3_waste = get_top_3_wasted_foods(restaurant_id)
     food_costs, total_cost = calculate_food_wise_cost(restaurant_id)
     generate_restaurant_comparison()
     ai_message = generate_ai_recommendation(restaurant_id)
 
-    # DEMAND PREDICTION
     food_prediction = None
     if request.method == "POST":
         temperature = int(request.form["temperature"])
         food = request.form["food"]
-
-        food_prediction = predict_food_demand(
-            restaurant_id, food, temperature
-        )
+        food_prediction = predict_food_demand(restaurant_id, food, temperature)
         generate_weekly_food_trend(restaurant_id, food)
 
     return render_template(
@@ -192,61 +179,52 @@ def dashboard():
 
 
 # =====================================================
-# ADMIN DASHBOARD ✅ FIXED & COMPLETE
+# ✅ ADMIN DASHBOARD — FINAL FIX
 # =====================================================
 @app.route("/admin")
 def admin_dashboard():
-    if "role" not in session or session["role"] != "admin":
+    if session.get("role") != "admin":
         return redirect(url_for("login"))
+
+    selected_restaurant = request.args.get("restaurant_id", type=int)
+    analytics = None
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    # ✅ TOTAL RESTAURANTS (FIX FOR BLANK CARD)
+    # Restaurant list
     cursor.execute("""
-        SELECT COUNT(*) AS total
-        FROM restaurants
-        WHERE role='restaurant'
-    """)
-    total_restaurants = cursor.fetchone()["total"]
-
-    # RESTAURANT LIST
-    cursor.execute("""
-        SELECT id, name, email
+        SELECT id, name
         FROM restaurants
         WHERE role='restaurant'
     """)
     restaurants = cursor.fetchall()
 
-    # TOTAL WASTE
-    cursor.execute("""
-        SELECT SUM(wasted) AS total_waste
-        FROM food_history
-    """)
-    total_waste = cursor.fetchone()["total_waste"] or 0
+    # If a restaurant is selected → load analytics
+    if selected_restaurant:
+        worst_food, waste_qty = generate_waste_report(selected_restaurant)
+        top_3 = get_top_3_wasted_foods(selected_restaurant)
+        food_costs, total_cost = calculate_food_wise_cost(selected_restaurant)
+        ai_message = generate_ai_recommendation(selected_restaurant)
 
-    # MOST WASTED FOOD (SYSTEM-WIDE)
-    cursor.execute("""
-        SELECT food_item, SUM(wasted) AS wasted
-        FROM food_history
-        GROUP BY food_item
-        ORDER BY wasted DESC
-        LIMIT 1
-    """)
-    top_food = cursor.fetchone()
+        analytics = {
+            "worst_food": worst_food,
+            "waste_qty": waste_qty,
+            "top_3": top_3,
+            "total_cost": total_cost,
+            "ai_message": ai_message
+        }
 
     cursor.close()
     conn.close()
 
-    # Generate comparison graph
     generate_restaurant_comparison()
 
     return render_template(
         "admin_dashboard.html",
-        total_restaurants=total_restaurants,   # ✅ NOW SHOWS
         restaurants=restaurants,
-        total_waste=total_waste,
-        top_food=top_food
+        selected_restaurant=selected_restaurant,
+        analytics=analytics
     )
 
 

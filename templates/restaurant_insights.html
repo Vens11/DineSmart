@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ restaurant }} Insights</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <div class="dashboard-header">
+        <h1>🏪 {{ restaurant }} – Insights</h1>
+        <p>Restaurant-specific waste analytics</p>
+
+        <a href="/admin" class="add-btn">← Back to Admin</a>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <h2>📉 Waste Summary</h2>
+            <p>Total waste units:</p>
+            <p class="highlight">{{ waste_data.total }}</p>
+        </div>
+
+        <div class="card">
+            <h2>💰 Waste Cost</h2>
+            <p class="highlight">₹{{ cost_data.total_cost }}</p>
+        </div>
+
+        <div class="card">
+            <h2>📊 Food Waste Chart</h2>
+            <div class="chart-container">
+                <img src="/static/graphs/{{ restaurant }}_waste.png">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

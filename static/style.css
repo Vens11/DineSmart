@@ -1,4 +1,4 @@
-/* ========== RESET ========== */
+﻿/* ========== RESET ========== */
 * {
     box-sizing: border-box;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
@@ -65,9 +65,10 @@ body {
     padding: 40px;
 }
 
+/* ========== HEADER ========== */
 .dashboard-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
 }
 
 .dashboard-header h1 {
@@ -79,6 +80,10 @@ body {
 .dashboard-header p {
     color: #7f8c8d;
     margin-top: 6px;
+}
+
+.header-actions {
+    margin-top: 15px;
 }
 
 /* ========== BUTTON ========== */
@@ -98,19 +103,28 @@ body {
     background: #2c3e50;
 }
 
-/* ========== GRID ========== */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+.admin-btn {
+    margin-left: 10px;
 }
 
-/* ========== CARD ========== */
+/* ========== GRID (CRITICAL FIX) ========== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    align-items: stretch;
+}
+
+/* ========== CARD (CRITICAL FIX) ========== */
 .card {
     background: #ffffff;
     padding: 22px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+
+    /* THIS PREVENTS OVERLAP */
+    display: flex;
+    flex-direction: column;
 }
 
 .card h2, .card h3 {
@@ -129,7 +143,66 @@ body {
     color: #2c3e50;
 }
 
-/* ========== ADMIN SELECT ========== */
+/* ========== TABLE ========== */
+.cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.cost-table th,
+.cost-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* ========== FORMS ========== */
+.prediction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.prediction-form input,
+.prediction-form select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccd1d9;
+}
+
+.prediction-form button {
+    padding: 10px;
+    background: #34495e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.prediction-form button:hover {
+    background: #2c3e50;
+}
+
+.prediction-result {
+    margin-top: 12px;
+}
+
+/* ========== CHART FIX (MOST IMPORTANT) ========== */
+.chart-container {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.chart-container img {
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;
+    display: block;
+}
+
+/* ========== ADMIN ========== */
 .admin-card {
     max-width: 420px;
     margin: 0 auto 30px;
@@ -144,7 +217,6 @@ body {
     background: #fafafa;
 }
 
-/* ========== CHART IMAGE ========== */
 .admin-graph {
     width: 100%;
     max-height: 260px;
@@ -160,10 +232,102 @@ body {
 /* ========== LOGOUT ========== */
 .logout {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 40px;
 }
 
 .logout a {
+    color: #34495e;
+    font-weight: 600;
+    text-decoration: none;
+}
+/* ========== ADD FOOD FORM PAGE ========== */
+
+.form-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.form-card {
+    background: white;
+    width: 100%;
+    max-width: 650px;
+    padding: 35px 40px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.form-title {
+    margin: 0;
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+.form-subtitle {
+    margin-top: 6px;
+    margin-bottom: 30px;
+    color: #7f8c8d;
+    font-size: 15px;
+}
+
+/* FORM */
+.food-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #34495e;
+    font-weight: 600;
+}
+
+.form-group input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccd1d9;
+    font-size: 14px;
+}
+
+/* ROW FOR NUMBERS */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+/* BUTTON */
+.primary-btn {
+    margin-top: 10px;
+    padding: 14px;
+    background: #34495e;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-btn:hover {
+    background: #2c3e50;
+}
+
+/* BACK LINK */
+.back-link {
+    display: inline-block;
+    margin-top: 22px;
     color: #34495e;
     font-weight: 600;
     text-decoration: none;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>DineSmart – Admin Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -9,24 +10,26 @@
 
 <div class="dashboard-page">
 
-    <!-- HEADER -->
+    <!-- ================= HEADER ================= -->
     <div class="dashboard-header">
         <h1>🛠 Admin Dashboard</h1>
         <p>System-wide food waste monitoring</p>
 
-        <div style="margin-top:15px;">
+        <div class="header-actions">
             <a href="/logout" class="add-btn">Logout</a>
         </div>
     </div>
 
-    <!-- SELECT RESTAURANT -->
+    <!-- ================= SELECT RESTAURANT ================= -->
     <div class="card admin-card">
-        <h3>Select Restaurant</h3>
+        <h3>🏪 Select Restaurant</h3>
         <p class="muted">View restaurant-wise waste insights</p>
 
         <form method="get" action="/admin">
+
             <select name="restaurant_id" class="admin-select" required>
                 <option value="">Choose restaurant</option>
+
                 {% for r in restaurants %}
                     <option value="{{ r.id }}"
                         {% if selected_restaurant == r.id %}selected{% endif %}>
@@ -35,37 +38,47 @@
                 {% endfor %}
             </select>
 
-            <button class="add-btn" style="margin-top:12px;">
+            <button type="submit" class="add-btn" style="margin-top:14px;">
                 View Insights
             </button>
         </form>
     </div>
 
-    <!-- RESTAURANT ANALYTICS -->
+    <!-- ================= RESTAURANT ANALYTICS ================= -->
     {% if analytics %}
     <div class="dashboard-grid">
 
+        <!-- Waste Summary -->
         <div class="card">
             <h3>📉 Waste Summary</h3>
-            <p>Most Wasted Item</p>
+            <p>Most wasted item</p>
             <p class="highlight">{{ analytics.worst_food }}</p>
-            <p>Total Wasted Units: <strong>{{ analytics.waste_qty }}</strong></p>
+            <p>Total wasted units:
+                <strong>{{ analytics.waste_qty }}</strong>
+            </p>
         </div>
 
+        <!-- Top 3 -->
         <div class="card">
             <h3>🔥 Top 3 Wasted Foods</h3>
             <ul>
                 {% for item in analytics.top_3 %}
-                    <li>{{ item.food_item }} – <strong>{{ item.wasted }}</strong></li>
+                    <li>
+                        {{ item.food_item }} –
+                        <strong>{{ item.wasted }}</strong> units
+                    </li>
                 {% endfor %}
             </ul>
         </div>
 
+        <!-- Cost Impact -->
         <div class="card">
             <h3>💰 Cost Impact</h3>
+            <p>Total waste cost</p>
             <p class="highlight">₹{{ analytics.total_cost }}</p>
         </div>
 
+        <!-- AI Recommendation -->
         <div class="card">
             <h3>🤖 AI Recommendation</h3>
             <p>{{ analytics.ai_message }}</p>
@@ -74,10 +87,17 @@
     </div>
     {% endif %}
 
-    <!-- COMPARISON -->
-    <div class="card" style="max-width:900px; margin:30px auto;">
+    <!-- ================= COMPARISON CHART ================= -->
+    <div class="card" style="max-width:900px; margin:40px auto;">
         <h3>🏪 Restaurant Waste Comparison</h3>
-        <img src="/static/graphs/restaurant_comparison.png" class="admin-graph">
+
+        <div class="chart-container">
+            <img
+                src="/static/graphs/restaurant_comparison.png"
+                alt="Restaurant Waste Comparison"
+                class="admin-graph"
+            >
+        </div>
     </div>
 
 </div>

@@ -25,38 +25,75 @@
             <p>Total wasted units: <strong>{{ waste_qty }}</strong></p>
         </div>
 
+        <!-- Top 3 Wasted Foods -->
+        <div class="card">
+            <h2>🔥 Top 3 Wasted Foods</h2>
+            <ul>
+                {% for item in top_3_waste %}
+                    <li>
+                        {{ item.food_item }} –
+                        <strong>{{ item.wasted }}</strong> units
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
         <!-- AI Recommendation -->
         <div class="card">
             <h2>🤖 AI Recommendation</h2>
             <p>
                 Reduce preparation of
                 <strong>{{ worst_food }}</strong>
-                by <strong>25%</strong> to reduce food waste.
+                by <strong>25%</strong>
+                to reduce food waste and cost.
             </p>
         </div>
 
-        <!-- Cost Savings -->
+        <!-- Cost Impact -->
         <div class="card">
             <h2>💰 Cost Impact</h2>
             <p>Total waste cost:</p>
             <p class="highlight">₹{{ total_cost }}</p>
-            <p>Estimated savings with AI:</p>
-            <p class="highlight">₹{{ savings }}</p>
+
+            <table class="cost-table">
+                <tr>
+                    <th>Food</th>
+                    <th>Waste Cost (₹)</th>
+                </tr>
+                {% for item in food_costs %}
+                <tr>
+                    <td>{{ item.food_item }}</td>
+                    <td>₹{{ item.waste_cost }}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
 
-        <!-- Demand Prediction -->
+        <!-- Food Demand Prediction -->
         <div class="card">
-            <h2>📈 Demand Prediction</h2>
+            <h2>📈 Food Demand Prediction</h2>
+
             <form method="post">
-                <input type="number" name="temperature" placeholder="Temperature (°C)" required>
-                <input type="number" name="event" placeholder="Event (1=Yes, 0=No)" required>
-                <button type="submit">Predict Demand</button>
+                <input
+                    type="number"
+                    name="temperature"
+                    placeholder="Temperature (°C)"
+                    required
+                >
+
+                <select name="food" required>
+                    {% for food in foods %}
+                        <option value="{{ food }}">{{ food }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Predict</button>
             </form>
 
-            {% if prediction %}
-                <p style="margin-top: 10px;">
+            {% if food_prediction is not none %}
+                <p style="margin-top:10px;">
                     Predicted demand:
-                    <strong class="highlight">{{ prediction }}</strong>
+                    <strong class="highlight">{{ food_prediction }}</strong>
                 </p>
             {% endif %}
         </div>
@@ -67,11 +104,13 @@
             <img src="/static/graphs/waste_report.png" alt="Waste Report">
         </div>
 
-        <!-- Weekly Forecast -->
+        <!-- Weekly Food Trend -->
+        {% if food_prediction is not none %}
         <div class="card">
-            <h2>📅 Weekly Forecast</h2>
-            <img src="/static/graphs/weekly_forecast.png" alt="Weekly Forecast">
+            <h2>📈 Weekly Food Trend</h2>
+            <img src="/static/graphs/weekly_food_trend.png" alt="Food Trend">
         </div>
+        {% endif %}
 
         <!-- Restaurant Comparison -->
         <div class="card">

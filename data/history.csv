@@ -1,10 +1,42 @@
-restaurant,date,food_item,prepared,sold,wasted
-CampusCafeteria,2024-01-01,Rice,300,250,50
-CampusCafeteria,2024-01-02,Rice,320,260,60
-CampusCafeteria,2024-01-01,Curry,200,170,30
-FastFoodOutlet,2024-01-01,Burger,400,360,40
-FastFoodOutlet,2024-01-02,Burger,420,370,50
-FastFoodOutlet,2024-01-01,Fries,350,300,50
-FineDineBistro,2024-01-01,Pasta,120,100,20
-FineDineBistro,2024-01-02,Pasta,130,105,25
-FineDineBistro,2024-01-01,Salad,90,60,30
+restaurant,food_item,prepared,sold,wasted,cost_per_unit
+CampusCafeteria,Rice,300,190,110,25
+CampusCafeteria,Curry,200,170,30,30
+CampusCafeteria,Roti,180,160,20,10
+CampusCafeteria,Salad,120,95,25,20
+CampusCafeteria,Sambar,160,140,20,15
+CampusCafeteria,Curd,140,120,20,12
+CampusCafeteria,Vegetable Fry,150,125,25,22
+CampusCafeteria,Chapati,170,150,20,10
+CampusCafeteria,Dal,190,165,25,18
+
+FastFoodOutlet,Burger,250,210,40,80
+FastFoodOutlet,Fries,220,180,40,40
+FastFoodOutlet,Pizza,200,150,50,90
+FastFoodOutlet,Wrap,180,145,35,60
+FastFoodOutlet,Nuggets,160,130,30,55
+FastFoodOutlet,Soft Drink,300,260,40,25
+FastFoodOutlet,Milkshake,140,110,30,50
+FastFoodOutlet,Hot Dog,170,135,35,65
+
+FineDineBistro,Pasta,160,130,30,70
+FineDineBistro,Steak,140,120,20,150
+FineDineBistro,Dessert,110,90,20,60
+FineDineBistro,Grilled Fish,130,105,25,140
+FineDineBistro,Salad Bowl,120,100,20,45
+FineDineBistro,Soup,150,125,25,35
+FineDineBistro,Garlic Bread,140,115,25,40
+FineDineBistro,Cheesecake,100,80,20,80
+
+StreetFoodCorner,Dosa,220,190,30,25
+StreetFoodCorner,Idli,200,170,30,20
+StreetFoodCorner,Vada,180,150,30,18
+StreetFoodCorner,Pani Puri,300,260,40,15
+StreetFoodCorner,Bhel Puri,250,215,35,20
+StreetFoodCorner,Samosa,240,200,40,22
+
+HealthyCafe,Quinoa Bowl,130,110,20,90
+HealthyCafe,Smoothie,160,135,25,70
+HealthyCafe,Avocado Toast,120,95,25,85
+HealthyCafe,Fruit Salad,150,125,25,60
+HealthyCafe,Green Juice,140,115,25,65
+HealthyCafe,Oats Bowl,170,145,25,50

@@ -1,15 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+import pandas as pd
 
-from model import train_and_predict, weekly_forecast
+from model import predict_food_demand
+
 from graphs import (
     generate_waste_report,
     generate_restaurant_comparison,
-    generate_weekly_forecast_chart,
-    calculate_cost_savings
+    get_top_3_wasted_foods,
+    calculate_food_wise_cost,
+    generate_weekly_food_trend
 )
 
 app = Flask(__name__)
 app.secret_key = "dinesmart_secret_key"
+
 
 # ---------------- DEMO RESTAURANT LOGINS ----------------
 USERS = {
@@ -38,11 +42,8 @@ def login():
         if username in USERS and USERS[username]['password'] == password:
             session['restaurant'] = USERS[username]['restaurant']
             return redirect(url_for('dashboard'))
-        else:
-            return render_template(
-                "login.html",
-                error="Invalid restaurant or password"
-            )
+
+        return render_template("login.html", error="Invalid credentials")
 
     return render_template("login.html")
 
@@ -55,37 +56,47 @@ def dashboard():
 
     restaurant = session['restaurant']
 
-    # 1️⃣ Generate waste report
-    worst_food, waste_qty = generate_waste_report(restaurant)
+    # Load history data
+    history = pd.read_csv("data/history.csv")
+    history = history[history['restaurant'] == restaurant]
 
-    # 2️⃣ Generate restaurant comparison chart
+    foods = history['food_item'].unique().tolist()
+
+    # Analytics
+    worst_food, waste_qty = generate_waste_report(restaurant)
+    top_3_waste = get_top_3_wasted_foods(restaurant).to_dict(orient="records")
+    food_costs, total_cost = calculate_food_wise_cost(restaurant)
     generate_restaurant_comparison()
 
-    # 3️⃣ Weekly forecast
-    forecast = weekly_forecast(restaurant)
-    generate_weekly_forecast_chart(restaurant, forecast)
+    # Prediction result
+    food_prediction = None
 
-    # 4️⃣ Cost savings
-    total_cost, savings = calculate_cost_savings(restaurant)
-
-    # 5️⃣ Demand prediction (form submission)
-    prediction = None
     if request.method == 'POST':
         try:
-            temperature = int(request.form['temperature'])
-            event = int(request.form['event'])
-            prediction = train_and_predict(restaurant, temperature, event)
-        except:
-            prediction = None
+            temperature = int(request.form.get('temperature'))
+            food = request.form.get('food')
+
+            if food and temperature:
+                food_prediction = predict_food_demand(
+                    restaurant, food, temperature
+                )
+                generate_weekly_food_trend(restaurant, food)
+
+        except Exception as e:
+            # Safe fallback (no crash)
+            food_prediction = None
+            print("Prediction error:", e)
 
     return render_template(
         "dashboard.html",
         restaurant=restaurant,
+        foods=foods,
         worst_food=worst_food,
         waste_qty=waste_qty,
+        top_3_waste=top_3_waste,
+        food_costs=food_costs.to_dict(orient="records"),
         total_cost=total_cost,
-        savings=savings,
-        prediction=prediction
+        food_prediction=food_prediction
     )
 
 
